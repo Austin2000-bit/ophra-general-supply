@@ -21,6 +21,7 @@ const adminPasswordSalt = process.env.ADMIN_PASSWORD_SALT || process.env.VITE_AD
 const adminSessionSecret = process.env.ADMIN_SESSION_SECRET || adminPasswordHash || randomBytes(32).toString('hex');
 const adminCookieName = 'ophra_admin_session';
 const adminSessionTtlMs = Number(process.env.ADMIN_SESSION_TTL_MS || 8 * 60 * 60 * 1000);
+const adminSessionInactivityMs = Number(process.env.ADMIN_SESSION_INACTIVITY_MS || 15 * 60 * 1000);
 const maxJsonBytes = Number(process.env.OPHRA_MAX_JSON_BYTES || 5 * 1024 * 1024);
 const loginAttempts = new Map();
 const emptyStore = {
@@ -124,7 +125,8 @@ function securityHeaders(request, extra = {}) {
 }
 
 function send(request, response, status, body, extraHeaders = {}) {
-  response.writeHead(status, securityHeaders(request, extraHeaders));
+  const refreshedCookie = request.adminSessionToken ? { 'Set-Cookie': cookieHeader(request.adminSessionToken) } : {};
+  response.writeHead(status, securityHeaders(request, { ...refreshedCookie, ...extraHeaders }));
   response.end(status === 204 ? '' : JSON.stringify(body));
 }
 
@@ -171,19 +173,28 @@ function sign(value) {
   return createHmac('sha256', adminSessionSecret).update(value).digest('base64url');
 }
 
-function createSessionToken() {
-  const payload = Buffer.from(JSON.stringify({ exp: Date.now() + adminSessionTtlMs, nonce: randomBytes(12).toString('hex') })).toString('base64url');
+function createSessionToken(createdAt = Date.now()) {
+  const payload = Buffer.from(JSON.stringify({
+    createdAt,
+    lastActiveAt: Date.now(),
+    exp: createdAt + adminSessionTtlMs,
+    nonce: randomBytes(12).toString('hex'),
+  })).toString('base64url');
   return `${payload}.${sign(payload)}`;
 }
 
 function verifySessionToken(token) {
   const [payload, signature] = String(token || '').split('.');
-  if (!payload || !signature || sign(payload) !== signature) return false;
+  if (!payload || !signature || sign(payload) !== signature) return null;
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-    return Number(data.exp || 0) > Date.now();
+    const now = Date.now();
+    if (Number(data.exp || 0) <= now) return null;
+    if (!data.createdAt || now - Number(data.createdAt) > adminSessionTtlMs) return null;
+    if (!data.lastActiveAt || now - Number(data.lastActiveAt) > adminSessionInactivityMs) return null;
+    return data;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -194,7 +205,10 @@ function cookieHeader(token = '') {
 }
 
 function isAdminRequest(request) {
-  return verifySessionToken(parseCookies(request)[adminCookieName]);
+  const session = verifySessionToken(parseCookies(request)[adminCookieName]);
+  if (!session) return false;
+  request.adminSessionToken = createSessionToken(Number(session.createdAt) || Date.now());
+  return true;
 }
 
 function adminAuthReady() {

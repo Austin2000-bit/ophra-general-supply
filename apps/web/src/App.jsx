@@ -14,6 +14,12 @@ const CLOUDINARY_UPLOAD_FOLDER = import.meta.env.VITE_CLOUDINARY_UPLOAD_FOLDER |
 const ADMIN_PASSWORD_HASH = import.meta.env.VITE_ADMIN_PASSWORD_HASH || '';
 const ADMIN_PASSWORD_SALT = import.meta.env.VITE_ADMIN_PASSWORD_SALT || '';
 const ADMIN_SESSION_KEY = 'ophraAdminSession';
+const CUSTOMER_SESSION_KEY = 'ophraCustomerSession';
+const ADMIN_INACTIVITY_TIMEOUT_MS = Number(import.meta.env.VITE_ADMIN_INACTIVITY_TIMEOUT_MS || 15 * 60 * 1000);
+const ADMIN_HARD_SESSION_MS = Number(import.meta.env.VITE_ADMIN_HARD_SESSION_MS || 8 * 60 * 60 * 1000);
+const CUSTOMER_INACTIVITY_TIMEOUT_MS = Number(import.meta.env.VITE_CUSTOMER_INACTIVITY_TIMEOUT_MS || 30 * 60 * 1000);
+const CUSTOMER_HARD_SESSION_MS = Number(import.meta.env.VITE_CUSTOMER_HARD_SESSION_MS || 24 * 60 * 60 * 1000);
+const SESSION_ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'scroll', 'touchstart', 'focus'];
 const DEPARTMENTS = ['Hardware Tools', 'Food Products'];
 const ALL_DEPARTMENTS = 'All Departments';
 const STORE_PAGE_SIZE = 12;
@@ -265,15 +271,35 @@ function readCustomers() {
   return Array.isArray(customers) ? customers : [];
 }
 
+function sessionFresh(session, inactivityTimeoutMs, hardTimeoutMs) {
+  if (!session?.createdAt || !session?.lastActiveAt) return false;
+  const now = Date.now();
+  return now - Number(session.lastActiveAt) <= inactivityTimeoutMs && now - Number(session.createdAt) <= hardTimeoutMs;
+}
+
 function currentCustomer() {
-  const session = readStore('ophraCustomerSession', null);
+  const session = readStore(CUSTOMER_SESSION_KEY, null);
   if (!session?.email) return null;
+  if (!sessionFresh(session, CUSTOMER_INACTIVITY_TIMEOUT_MS, CUSTOMER_HARD_SESSION_MS)) {
+    saveCustomerSession(null);
+    return null;
+  }
   return readCustomers().find((customer) => customer.email === session.email) || null;
 }
 
 function saveCustomerSession(customer) {
-  if (customer) writeStore('ophraCustomerSession', { email: customer.email });
-  else localStorage.removeItem('ophraCustomerSession');
+  if (customer) writeStore(CUSTOMER_SESSION_KEY, { email: customer.email, createdAt: Date.now(), lastActiveAt: Date.now() });
+  else localStorage.removeItem(CUSTOMER_SESSION_KEY);
+}
+
+function touchCustomerSession() {
+  const session = readStore(CUSTOMER_SESSION_KEY, null);
+  if (!session?.email || !sessionFresh(session, CUSTOMER_INACTIVITY_TIMEOUT_MS, CUSTOMER_HARD_SESSION_MS)) {
+    saveCustomerSession(null);
+    return false;
+  }
+  writeStore(CUSTOMER_SESSION_KEY, { ...session, lastActiveAt: Date.now() });
+  return true;
 }
 
 function randomSalt() {
@@ -433,6 +459,19 @@ function Storefront() {
   const [customSubmitting, setCustomSubmitting] = useState(false);
   const [customer, setCustomer] = useState(() => currentCustomer());
 
+  useSessionTimeout({
+    enabled: Boolean(customer),
+    sessionKey: CUSTOMER_SESSION_KEY,
+    inactivityTimeoutMs: CUSTOMER_INACTIVITY_TIMEOUT_MS,
+    hardTimeoutMs: CUSTOMER_HARD_SESSION_MS,
+    touchSession: touchCustomerSession,
+    onTimeout: () => {
+      saveCustomerSession(null);
+      setCustomer(null);
+      setNotice('Your account session expired. Please log in again before checkout.');
+    },
+  });
+
   useEffect(() => {
     async function refreshCatalog() {
       const [nextProducts, nextGroups] = await Promise.all([
@@ -444,7 +483,7 @@ function Storefront() {
       setCustomer(currentCustomer());
     }
     function handleStorage(event) {
-      if (!event.key || ['ophraProducts', 'shareDcProducts', 'ophraProductGroups', 'ophraCustomers', 'ophraCustomerSession'].includes(event.key)) refreshCatalog();
+      if (!event.key || ['ophraProducts', 'shareDcProducts', 'ophraProductGroups', 'ophraCustomers', CUSTOMER_SESSION_KEY].includes(event.key)) refreshCatalog();
       if (!event.key || event.key === 'ophraCart') {
         const savedCart = readStore('ophraCart', []);
         setCart(Array.isArray(savedCart) ? savedCart : []);
@@ -1152,6 +1191,23 @@ function CustomerAccountPage() {
   const [orders, setOrders] = useState(() => customerOrders(customer));
   const [quotes, setQuotes] = useState(() => customerQuotes(customer));
 
+  useSessionTimeout({
+    enabled: Boolean(customer),
+    sessionKey: CUSTOMER_SESSION_KEY,
+    inactivityTimeoutMs: CUSTOMER_INACTIVITY_TIMEOUT_MS,
+    hardTimeoutMs: CUSTOMER_HARD_SESSION_MS,
+    touchSession: touchCustomerSession,
+    onTimeout: () => {
+      saveCustomerSession(null);
+      setCustomer(null);
+      setForm({ name: '', email: '', passwordInput: '' });
+      setOrders([]);
+      setQuotes([]);
+      setAccountNotice('Your session expired. Please log in again.');
+      setMode('LOGIN');
+    },
+  });
+
   useEffect(() => {
     let active = true;
     async function loadCustomerRecords() {
@@ -1259,15 +1315,73 @@ function adminAuthConfigured() {
 
 function adminSessionValid() {
   const session = readStore(ADMIN_SESSION_KEY, null);
-  return Boolean(session?.passwordHash && session.passwordHash === ADMIN_PASSWORD_HASH);
+  const valid = Boolean(session?.passwordHash && session.passwordHash === ADMIN_PASSWORD_HASH && sessionFresh(session, ADMIN_INACTIVITY_TIMEOUT_MS, ADMIN_HARD_SESSION_MS));
+  if (!valid) clearAdminSession();
+  return valid;
 }
 
 function saveAdminSession() {
-  writeStore(ADMIN_SESSION_KEY, { passwordHash: ADMIN_PASSWORD_HASH, createdAt: Date.now() });
+  writeStore(ADMIN_SESSION_KEY, { passwordHash: ADMIN_PASSWORD_HASH, createdAt: Date.now(), lastActiveAt: Date.now() });
+}
+
+function touchAdminSession() {
+  const session = readStore(ADMIN_SESSION_KEY, null);
+  if (!session?.passwordHash || session.passwordHash !== ADMIN_PASSWORD_HASH || !sessionFresh(session, ADMIN_INACTIVITY_TIMEOUT_MS, ADMIN_HARD_SESSION_MS)) {
+    clearAdminSession();
+    return false;
+  }
+  writeStore(ADMIN_SESSION_KEY, { ...session, lastActiveAt: Date.now() });
+  return true;
 }
 
 function clearAdminSession() {
   localStorage.removeItem(ADMIN_SESSION_KEY);
+}
+
+function useSessionTimeout({ enabled, sessionKey, inactivityTimeoutMs, hardTimeoutMs, touchSession, onTimeout }) {
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let timerId = 0;
+    let lastTouchAt = 0;
+
+    function expire() {
+      window.clearTimeout(timerId);
+      onTimeout();
+    }
+
+    function schedule() {
+      window.clearTimeout(timerId);
+      const session = readStore(sessionKey, null);
+      if (!session) return;
+      if (!sessionFresh(session, inactivityTimeoutMs, hardTimeoutMs)) return expire();
+      const inactivityExpiresAt = Number(session.lastActiveAt) + inactivityTimeoutMs;
+      const hardExpiresAt = Number(session.createdAt) + hardTimeoutMs;
+      const delay = Math.max(1000, Math.min(inactivityExpiresAt, hardExpiresAt) - Date.now());
+      timerId = window.setTimeout(expire, delay);
+    }
+
+    function markActivity() {
+      if (document.hidden) return;
+      const now = Date.now();
+      if (now - lastTouchAt < 30 * 1000) return schedule();
+      lastTouchAt = now;
+      if (!touchSession()) return expire();
+      schedule();
+    }
+
+    function checkVisibility() {
+      if (!document.hidden) schedule();
+    }
+
+    schedule();
+    SESSION_ACTIVITY_EVENTS.forEach((eventName) => window.addEventListener(eventName, markActivity, { passive: true }));
+    document.addEventListener('visibilitychange', checkVisibility);
+    return () => {
+      window.clearTimeout(timerId);
+      SESSION_ACTIVITY_EVENTS.forEach((eventName) => window.removeEventListener(eventName, markActivity));
+      document.removeEventListener('visibilitychange', checkVisibility);
+    };
+  }, [enabled, sessionKey, inactivityTimeoutMs, hardTimeoutMs, touchSession, onTimeout]);
 }
 
 function AdminLogin({ onLogin }) {
@@ -1329,6 +1443,19 @@ function AdminPanel() {
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [adminDepartmentFilter, setAdminDepartmentFilter] = useState(ALL_DEPARTMENTS);
   const [adminNotice, setAdminNotice] = useState('');
+
+  useSessionTimeout({
+    enabled: adminAuthenticated,
+    sessionKey: ADMIN_SESSION_KEY,
+    inactivityTimeoutMs: ADMIN_INACTIVITY_TIMEOUT_MS,
+    hardTimeoutMs: ADMIN_HARD_SESSION_MS,
+    touchSession: touchAdminSession,
+    onTimeout: () => {
+      if (hasApi) adminLogout().catch((error) => console.warn('Could not clear expired server admin session', error));
+      clearAdminSession();
+      setAdminAuthenticated(false);
+    },
+  });
 
   useEffect(() => {
     if (!adminAuthenticated) return;
