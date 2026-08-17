@@ -662,15 +662,15 @@ function Storefront() {
     <div className="min-h-screen bg-white text-slate-950">
       <div className="h-10 bg-brand-navy" />
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 shadow-sm">
-        <div className="flex min-h-[78px] items-center justify-between gap-6 px-4 py-2 md:px-10">
-          <a href="/" className="flex min-w-0 items-center gap-3 text-sm font-black md:text-xl"><img className="h-16 w-28 shrink-0 object-contain md:h-20 md:w-36" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><span className="max-w-[180px] leading-tight md:max-w-none">{BRAND_NAME}</span></a>
+        <div className="flex min-h-[64px] items-center justify-between gap-3 px-3 py-2 sm:px-4 md:min-h-[78px] md:gap-6 md:px-10">
+          <a href="/" className="flex min-w-0 items-center gap-2 text-sm font-black sm:gap-3 md:text-xl"><img className="h-12 w-20 shrink-0 object-contain sm:h-14 sm:w-24 md:h-20 md:w-36" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><span className="max-w-[130px] leading-tight sm:max-w-[180px] md:max-w-none">{BRAND_NAME}</span></a>
           <nav className="hidden items-center gap-9 text-lg lg:flex"><a href="/">Home</a><a className="font-black text-brand-navy" href="#shop">Shop</a><a href="/admin">Admin</a></nav>
-          <a className="inline-flex h-10 shrink-0 items-center rounded-lg bg-brand-navy px-4 text-sm font-black text-white md:px-8" href="/account">LOGIN</a>
+          <a className="inline-flex h-10 shrink-0 items-center rounded-lg bg-brand-navy px-3 text-sm font-black text-white sm:px-4 md:px-8" href="/account">LOGIN</a>
         </div>
       </header>
 
-      <main id="shop" className="mx-auto max-w-[calc(100vw-96px)] px-4 pb-10">
-        <section className="sticky top-[78px] z-30 bg-white/90 pb-3 pt-3">
+      <main id="shop" className="mx-auto w-full max-w-7xl px-3 pb-10 sm:px-4 lg:px-8">
+        <section className="sticky top-[64px] z-30 bg-white/90 pb-3 pt-3 backdrop-blur md:top-[78px]">
           <label className="flex h-12 items-center gap-3 rounded-xl bg-slate-100 px-4 shadow-md"><Search className="text-brand-navy" size={20} /><input className="h-full flex-1 border-0 bg-transparent outline-none" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search general supply products..." /></label>
           <div className="mt-2 flex gap-1 overflow-x-auto rounded-full bg-white p-1 shadow-sm">{visibleDepartments.map((item) => <button key={item} className={`h-10 shrink-0 rounded-full px-5 text-sm ${department === item ? 'bg-brand-navy font-bold text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => { setDepartment(item); setActiveGroupId(''); setCategory('All Categories'); setDetailProduct(null); }} type="button">{item}</button>)}</div>
           <div className="mt-2 flex gap-1 overflow-x-auto rounded-full bg-white p-1 shadow-sm">{categories.map((item) => <button key={item} className={`h-9 shrink-0 rounded-full px-5 text-sm ${category === item ? 'bg-brand-pale font-bold text-brand-navy' : 'bg-slate-100 text-slate-600'}`} onClick={() => setCategory(item)} type="button">{item}</button>)}</div>
@@ -687,18 +687,18 @@ function Storefront() {
               />
             )}
             {pagedGroups.length > 0 && (
-              <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {pagedGroups.map((group) => <CatalogGroupCard key={group.id} group={group} productCount={groupProductCount(group, departmentProducts, departmentGroups)} openGroup={openCatalogGroup} />)}
               </section>
             )}
-            {pagedProducts.length > 0 && <section className="mt-6 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">{pagedProducts.map((product) => <ProductCard key={product.id} product={product} openQuantityModal={setSelectedProduct} openProductDetails={openProductDetails} />)}</section>}
+            {pagedProducts.length > 0 && <section className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">{pagedProducts.map((product) => <ProductCard key={product.id} product={product} openQuantityModal={setSelectedProduct} openProductDetails={openProductDetails} />)}</section>}
             {totalItems === 0 && <EmptyState title="No products yet" text="Add product families or products for this level from the admin page." />}
             <StorePagination page={safePage} totalPages={totalPages} totalItems={totalItems} shownFrom={shownFrom} shownTo={shownTo} productCount={visibleProducts.length} groupCount={childGroups.length} setPage={setPage} />
           </>
         )}
 
-        <section id="custom" className="mt-8 grid gap-6 border-t border-slate-200 py-10 lg:grid-cols-[0.8fr_1fr]">
-          <div><h2 className="text-3xl font-black">Request a custom product</h2><p className="mt-3 max-w-xl text-slate-500">Send the product name, description, quantity, optional image and contact details. Admin can accept or decline the request.</p></div>
+        <section id="custom" className="mt-8 grid gap-6 border-t border-slate-200 py-8 md:py-10 lg:grid-cols-[0.8fr_1fr]">
+          <div><h2 className="text-2xl font-black md:text-3xl">Request a custom product</h2><p className="mt-3 max-w-xl text-slate-500">Send the product name, description, quantity, optional image and contact details. Admin can accept or decline the request.</p></div>
           <form className="grid gap-3 rounded-2xl bg-slate-50 p-4" onSubmit={submitCustom}>
             <input className="rounded-xl bg-white px-4 py-3" name="name" required placeholder="Product name" />
             <textarea className="min-h-24 rounded-xl bg-white px-4 py-3" name="description" required placeholder="Description, size, brand, use case..." />
@@ -714,10 +714,10 @@ function Storefront() {
             <button className="rounded-xl bg-brand-navy px-5 py-3 font-black text-white disabled:opacity-60" disabled={customSubmitting} type="submit">{customSubmitting ? 'Submitting...' : 'Submit custom order'}</button>
           </form>
         </section>
-        <footer className="mt-10 grid gap-10 border-t border-slate-200 py-10 md:grid-cols-3"><div><h3 className="text-lg font-black">Features</h3><ul className="mt-5 grid gap-4 text-slate-600"><li>Pricing</li><li>Online payment</li><li>Transactions</li></ul></div><div><h3 className="text-lg font-black">Explore</h3><ul className="mt-5 grid gap-4 text-slate-600"><li>Home</li><li>Our Shop</li><li>Contact Us</li></ul></div><div className="flex items-center justify-center gap-5"><img className="h-28 w-44 shrink-0 object-contain" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><strong className="text-2xl leading-tight">{BRAND_NAME}</strong></div></footer>
+        <footer className="mt-10 grid gap-8 border-t border-slate-200 py-8 sm:grid-cols-2 md:grid-cols-3 md:py-10"><div><h3 className="text-lg font-black">Features</h3><ul className="mt-5 grid gap-4 text-slate-600"><li>Pricing</li><li>Online payment</li><li>Transactions</li></ul></div><div><h3 className="text-lg font-black">Explore</h3><ul className="mt-5 grid gap-4 text-slate-600"><li>Home</li><li>Our Shop</li><li>Contact Us</li></ul></div><div className="flex flex-col items-start justify-center gap-3 sm:flex-row sm:items-center sm:gap-5"><img className="h-20 w-32 shrink-0 object-contain md:h-28 md:w-44" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><strong className="text-xl leading-tight md:text-2xl">{BRAND_NAME}</strong></div></footer>
       </main>
 
-      <button className="fixed bottom-7 right-7 z-40 grid h-20 w-20 place-items-center rounded-full border-[6px] border-white bg-brand-navy text-white shadow-2xl" onClick={() => setCartOpen(true)} type="button" aria-label="Open cart"><ShoppingCart size={42} />{cartItemCount > 0 && <span className="absolute -right-1 -top-3 grid h-10 min-w-10 place-items-center rounded-full border-4 border-white bg-rose-600 px-2 text-2xl font-black">{cartItemCount}</span>}</button>
+      <button className="fixed bottom-4 right-4 z-40 grid h-14 w-14 place-items-center rounded-full border-4 border-white bg-brand-navy text-white shadow-2xl md:bottom-7 md:right-7 md:h-20 md:w-20 md:border-[6px]" onClick={() => setCartOpen(true)} type="button" aria-label="Open cart"><ShoppingCart className="h-7 w-7 md:h-[42px] md:w-[42px]" />{cartItemCount > 0 && <span className="absolute -right-1 -top-2 grid h-7 min-w-7 place-items-center rounded-full border-2 border-white bg-rose-600 px-1 text-sm font-black md:-top-3 md:h-10 md:min-w-10 md:border-4 md:px-2 md:text-2xl">{cartItemCount}</span>}</button>
       {notice && <div className="fixed bottom-7 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-brand-navy px-8 py-4 text-lg font-black text-white shadow-2xl">{notice}</div>}
       {selectedProduct && <QuantityModal product={selectedProduct} close={() => setSelectedProduct(null)} confirm={addToCart} />}
       {cartOpen && <CartDrawer cart={cart} setCart={setCart} close={() => setCartOpen(false)} completeSale={completeSale} createQuotationRequest={createQuotationRequest} customer={customer} openAccount={() => { window.location.href = '/account'; }} />}
@@ -778,12 +778,12 @@ function CatalogBreadcrumb({ department, trail, openRoot, openGroup }) {
 
 function CatalogGroupCard({ group, productCount, openGroup }) {
   return (
-    <button className="grid min-h-[190px] grid-cols-[132px_1fr] overflow-hidden rounded-xl border border-slate-200 bg-white text-left shadow-lg shadow-slate-200/70 transition hover:-translate-y-0.5 hover:border-brand-navy" onClick={() => openGroup(group)} type="button">
+    <button className="grid min-h-[180px] overflow-hidden rounded-xl border border-slate-200 bg-white text-left shadow-lg shadow-slate-200/70 transition hover:-translate-y-0.5 hover:border-brand-navy sm:grid-cols-[132px_1fr]" onClick={() => openGroup(group)} type="button">
       <div className="grid h-full place-items-center bg-slate-50 p-4">
-        <img className="max-h-32 max-w-full object-contain" src={group.image || '/ophra-logo.png'} alt={group.name} />
+        <img className="max-h-28 max-w-full object-contain sm:max-h-32" src={group.image || '/ophra-logo.png'} alt={group.name} />
       </div>
       <div className="flex min-w-0 flex-col justify-center p-4">
-        <h2 className="text-xl font-black leading-tight text-slate-950">{group.name}</h2>
+        <h2 className="text-lg font-black leading-tight text-slate-950 md:text-xl">{group.name}</h2>
         <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{group.description || 'Tap to view available varieties and prices.'}</p>
         <p className="mt-3 text-sm font-black text-brand-navy">{productCount} products</p>
       </div>
@@ -796,9 +796,9 @@ function ProductCard({ product, openQuantityModal, openProductDetails }) {
   const secondaryName = product.localName || product.category;
 
   return (
-    <article className="grid min-h-[380px] grid-rows-[210px_1fr] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg shadow-slate-200/70">
+    <article className="grid min-h-[350px] grid-rows-[190px_1fr] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg shadow-slate-200/70 md:min-h-[380px] md:grid-rows-[210px_1fr]">
       <div className="grid place-items-center bg-white p-4">
-        <img className="max-h-[190px] max-w-full object-contain" src={product.image || '/ophra-logo.png'} alt={product.name} />
+        <img className="max-h-[170px] max-w-full object-contain md:max-h-[190px]" src={product.image || '/ophra-logo.png'} alt={product.name} />
       </div>
       <div className="grid grid-rows-[1fr_auto_auto] gap-2 px-3 pb-3">
         <div className="min-w-0">
@@ -874,16 +874,16 @@ function ProductDetails({ product, products, openQuantityModal, openProductDetai
   return (
     <section className="mt-6">
       <button className="mb-5 rounded-lg bg-slate-100 px-4 py-2 font-bold text-brand-navy" onClick={closeDetails} type="button">&lt; Back to shop</button>
-      <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="grid min-h-[360px] place-items-center rounded-xl border border-slate-200 bg-white p-6 shadow-lg">
-          <img className="max-h-[420px] max-w-full object-contain" src={selectedProduct.image || '/ophra-logo.png'} alt={product.name} />
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
+        <div className="grid min-h-[260px] place-items-center rounded-xl border border-slate-200 bg-white p-4 shadow-lg md:min-h-[360px] md:p-6">
+          <img className="max-h-[300px] max-w-full object-contain md:max-h-[420px]" src={selectedProduct.image || '/ophra-logo.png'} alt={product.name} />
         </div>
         <div>
           <p className="font-bold uppercase tracking-[0.2em] text-brand-navy">{normalizeDepartment(product.department)} / {product.category}</p>
-          <h1 className="mt-2 text-4xl font-black">{product.name}</h1>
+          <h1 className="mt-2 text-3xl font-black md:text-4xl">{product.name}</h1>
           <p className="mt-1 text-xl text-slate-500">{choiceLabel || product.localName}</p>
-          {canShowPrice(product) ? <p className="mt-5 text-3xl font-black text-brand-navy">{money.format(product.price)}</p> : <ProductContactCallout />}
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">{variety?.description || product.description || 'Available from OPHRA GENERAL SUPPLY.'}</p>
+          {canShowPrice(product) ? <p className="mt-5 text-2xl font-black text-brand-navy md:text-3xl">{money.format(product.price)}</p> : <ProductContactCallout />}
+          <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 md:text-lg md:leading-8">{variety?.description || product.description || 'Available from OPHRA GENERAL SUPPLY.'}</p>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <InfoBox label="Stock" value={`${product.stock} ${product.unit}`} />
             <InfoBox label="Unit" value={product.unit} />
@@ -1038,15 +1038,15 @@ function CartDrawer({ cart, setCart, close, completeSale, createQuotationRequest
   }
 
   return (
-    <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white shadow-2xl">
-      <div className="flex items-center justify-between border-b border-slate-200 p-5">
+    <aside className="fixed inset-y-0 right-0 z-50 flex w-full flex-col bg-white shadow-2xl sm:max-w-xl">
+      <div className="flex items-center justify-between border-b border-slate-200 p-4 sm:p-5">
         <h2 className="text-2xl font-black">Cart</h2>
         <button className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100" onClick={close} type="button"><X size={20} /></button>
       </div>
-      <div className="flex-1 overflow-auto p-5">
+      <div className="flex-1 overflow-auto p-3 sm:p-5">
         {cart.length === 0 ? <EmptyState title="Cart is empty" text="Add products from the storefront." /> : cart.map((item) => (
-          <div key={item.cartKey || item.productId} className="mb-4 grid grid-cols-[80px_1fr] gap-4 rounded-xl border border-slate-200 p-3">
-            <img className="h-20 w-20 rounded-lg object-contain" src={item.image || '/ophra-logo.png'} alt={item.name} />
+          <div key={item.cartKey || item.productId} className="mb-4 grid grid-cols-[64px_1fr] gap-3 rounded-xl border border-slate-200 p-3 sm:grid-cols-[80px_1fr] sm:gap-4">
+            <img className="h-16 w-16 rounded-lg object-contain sm:h-20 sm:w-20" src={item.image || '/ophra-logo.png'} alt={item.name} />
             <div>
               <h3 className="font-black">{item.name}</h3>
               <p className="text-sm text-slate-500">{money.format(item.price)} per {item.unit}</p>
@@ -1081,7 +1081,7 @@ function CartDrawer({ cart, setCart, close, completeSale, createQuotationRequest
           </section>
         )}
       </div>
-      <div className="border-t border-slate-200 p-5">
+      <div className="border-t border-slate-200 p-4 sm:p-5">
         <div className="grid gap-2 text-sm text-slate-600">
           <div className="flex items-center justify-between"><span>Items</span><span>{money.format(itemsTotal)}</span></div>
           {wantsDelivery && <div className="flex items-center justify-between"><span>Delivery charge</span><span>{money.format(deliveryFee)}</span></div>}
@@ -1214,20 +1214,20 @@ function CustomerAccountPage() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950">
       <header className="border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between gap-3 px-4">
-          <a href="/" className="flex min-w-0 items-center gap-3 text-sm font-black md:text-xl"><img className="h-16 w-28 shrink-0 object-contain md:h-20 md:w-36" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><span className="max-w-[180px] leading-tight md:max-w-none">{BRAND_NAME}</span></a>
-          <nav className="flex items-center gap-3 text-sm font-black"><a className="rounded-lg bg-slate-100 px-4 py-2 text-brand-navy" href="/">Storefront</a><a className="rounded-lg bg-brand-navy px-4 py-2 text-white" href="/admin">Admin</a></nav>
+        <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-3 py-2 sm:px-4 md:min-h-20">
+          <a href="/" className="flex min-w-0 items-center gap-2 text-sm font-black sm:gap-3 md:text-xl"><img className="h-12 w-20 shrink-0 object-contain sm:h-14 sm:w-24 md:h-20 md:w-36" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><span className="max-w-[130px] leading-tight sm:max-w-[180px] md:max-w-none">{BRAND_NAME}</span></a>
+          <nav className="flex shrink-0 items-center gap-2 text-sm font-black sm:gap-3"><a className="rounded-lg bg-slate-100 px-4 py-2 text-brand-navy" href="/">Storefront</a><a className="rounded-lg bg-brand-navy px-4 py-2 text-white" href="/admin">Admin</a></nav>
         </div>
       </header>
 
       <main className="mx-auto grid max-w-6xl gap-6 px-4 py-8">
         <section>
           <p className="font-bold uppercase tracking-[0.2em] text-brand-navy">Customer area</p>
-          <h1 className="mt-2 text-4xl font-black">Account</h1>
+          <h1 className="mt-2 text-3xl font-black md:text-4xl">Account</h1>
         </section>
 
         {mode !== 'ACCOUNT' || !customer ? (
-          <section className="rounded-xl bg-white p-6 shadow-sm">
+          <section className="rounded-xl bg-white p-4 shadow-sm sm:p-6">
             <form className="mx-auto grid max-w-xl gap-3" onSubmit={submit}>
               <div className="flex gap-2"><button className={`h-10 rounded-lg px-4 font-black ${mode === 'SIGNUP' ? 'bg-brand-navy text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => { setMode('SIGNUP'); setAccountNotice(''); }} type="button">Sign up</button><button className={`h-10 rounded-lg px-4 font-black ${mode === 'LOGIN' ? 'bg-brand-navy text-white' : 'bg-slate-100 text-slate-600'}`} onClick={() => { setMode('LOGIN'); setAccountNotice(''); }} type="button">Log in</button></div>
               {mode === 'SIGNUP' && <AdminInput label="Name or company" value={form.name} onChange={(value) => setForm({ ...form, name: value })} required />}
@@ -1612,22 +1612,22 @@ function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-950 lg:grid lg:grid-cols-[280px_1fr]">
-      <aside className="border-r border-slate-200 bg-brand-navy text-white">
+      <aside className="border-r border-slate-200 bg-brand-navy text-white lg:min-h-screen">
         <div className="flex min-h-24 items-center gap-3 border-b border-white/10 px-6 py-3">
           <img className="h-16 w-28 shrink-0 object-contain" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" />
           <div><p className="text-lg font-black leading-tight">{BRAND_NAME}</p><p className="text-xs text-white/70">Admin</p></div>
         </div>
-        <nav className="grid gap-2 p-4">
-          {navItems.map(([label, Icon, displayLabel]) => <button key={label} className={`flex items-center gap-3 rounded-lg px-4 py-3 text-left font-bold ${activeView === label ? 'bg-white text-brand-navy' : 'text-white/80 hover:bg-white/10'}`} onClick={() => setActiveView(label)} type="button"><Icon size={18} />{displayLabel || label}</button>)}
+        <nav className="flex gap-2 overflow-x-auto p-3 lg:grid lg:p-4">
+          {navItems.map(([label, Icon, displayLabel]) => <button key={label} className={`flex shrink-0 items-center gap-3 rounded-lg px-4 py-3 text-left font-bold ${activeView === label ? 'bg-white text-brand-navy' : 'text-white/80 hover:bg-white/10'}`} onClick={() => setActiveView(label)} type="button"><Icon size={18} />{displayLabel || label}</button>)}
         </nav>
-        <a className="mx-4 mt-4 flex items-center gap-3 rounded-lg bg-white/10 px-4 py-3 font-bold text-white" href="/"><Truck size={18} />Storefront</a>
+        <a className="mx-3 mb-3 flex w-max items-center gap-3 rounded-lg bg-white/10 px-4 py-3 font-bold text-white lg:mx-4 lg:mt-4" href="/"><Truck size={18} />Storefront</a>
       </aside>
 
-      <main className="min-w-0 p-4 md:p-8">
+      <main className="min-w-0 p-3 sm:p-4 md:p-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="font-bold uppercase tracking-[0.2em] text-brand-navy">Admin</p>
-            <h1 className="text-3xl font-black">{adminPageTitle}</h1>
+            <h1 className="text-2xl font-black md:text-3xl">{adminPageTitle}</h1>
           </div>
           <div className="flex flex-wrap items-center gap-3"><div className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow-sm"><UsersRound size={18} /><span className="font-bold">{hasApi ? 'API connected' : 'Local workspace'}</span></div><button className="rounded-xl bg-white px-4 py-3 font-black text-brand-navy shadow-sm" onClick={logoutAdmin} type="button">Log out</button></div>
         </header>
@@ -1652,7 +1652,7 @@ function AdminPanel() {
         )}
 
         {activeView === 'PRODUCTS' && (
-          <section className="mt-6 grid gap-6 xl:grid-cols-[420px_1fr]">
+          <section className="mt-6 grid gap-6 xl:grid-cols-[minmax(320px,420px)_1fr]">
             <form className="rounded-xl bg-white p-5 shadow-sm" onSubmit={saveProduct}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div><h2 className="text-xl font-black">{editingId ? 'Edit product' : 'Add new product'}</h2>{editingId && <p className="mt-1 text-sm font-bold text-brand-navy">Editing mode is active.</p>}</div>
@@ -1714,7 +1714,7 @@ function AdminPanel() {
         )}
 
         {activeView === 'PRODUCT FAMILIES' && (
-          <section className="mt-6 grid gap-6 xl:grid-cols-[420px_1fr]">
+          <section className="mt-6 grid gap-6 xl:grid-cols-[minmax(320px,420px)_1fr]">
             <form className="rounded-xl bg-white p-5 shadow-sm" onSubmit={saveCatalogGroup}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div><h2 className="text-xl font-black">{editingGroupId ? 'Edit product family' : 'Add product family'}</h2>{editingGroupId && <p className="mt-1 text-sm font-bold text-brand-navy">Editing mode is active.</p>}</div>
@@ -1940,7 +1940,7 @@ function ReportTable({ title, rows }) {
   return (
     <section className="rounded-xl bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-black">{title}</h2><span className="rounded-full bg-brand-pale px-4 py-2 text-sm font-black text-brand-navy">{rows.length} rows</span></div>
-      {!rows.length ? <EmptyState title="No report records" text="Try changing the filters or date range." /> : <div className="mt-5 overflow-auto rounded-xl border border-slate-200"><table className="w-full min-w-[900px] text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{columns.map((column) => <th key={column} className="p-3">{column}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={index} className="border-t border-slate-200">{columns.map((column) => <td key={column} className="p-3 align-top">{row[column]}</td>)}</tr>)}</tbody></table></div>}
+      {!rows.length ? <EmptyState title="No report records" text="Try changing the filters or date range." /> : <div className="mt-5 overflow-auto rounded-xl border border-slate-200"><table className="w-full min-w-[720px] text-left text-sm lg:min-w-[900px]"><thead className="bg-slate-50 text-slate-500"><tr>{columns.map((column) => <th key={column} className="p-3">{column}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={index} className="border-t border-slate-200">{columns.map((column) => <td key={column} className="p-3 align-top">{row[column]}</td>)}</tr>)}</tbody></table></div>}
     </section>
   );
 }
@@ -2258,7 +2258,7 @@ function MonitorPanel({ title, children, actionLabel, onAction }) {
 
 function MonitorTable({ rows, columns, renderRow, empty }) {
   if (!rows.length) return <EmptyState title={empty} text="Nothing needs attention here right now." />;
-  return <div className="overflow-auto rounded-xl border border-slate-200"><table className="w-full min-w-[520px] text-left text-sm"><thead className="bg-slate-50 text-slate-500"><tr>{columns.map((column) => <th key={column} className="p-3">{column}</th>)}</tr></thead><tbody>{rows.map(renderRow)}</tbody></table></div>;
+  return <div className="overflow-auto rounded-xl border border-slate-200"><table className="w-full min-w-[480px] text-left text-sm md:min-w-[520px]"><thead className="bg-slate-50 text-slate-500"><tr>{columns.map((column) => <th key={column} className="p-3">{column}</th>)}</tr></thead><tbody>{rows.map(renderRow)}</tbody></table></div>;
 }
 
 function StatusPill({ status }) {
@@ -2425,7 +2425,7 @@ function TransportSettingsView({ settings, setField, saveSettings }) {
   const officePoint = settings.officeLat && settings.officeLng ? `${settings.officeLat}, ${settings.officeLng}` : settings.officeAddress || 'Not set';
 
   return (
-    <section className="mt-6 grid gap-6 xl:grid-cols-[420px_1fr]">
+    <section className="mt-6 grid gap-6 xl:grid-cols-[minmax(320px,420px)_1fr]">
       <form className="rounded-xl bg-white p-5 shadow-sm" onSubmit={saveSettings}>
         <h2 className="text-xl font-black">Transport settings</h2>
         <p className="mt-2 text-sm text-slate-500">These metrics are used in the cart when a customer chooses delivery.</p>
@@ -2493,7 +2493,7 @@ function QuotationRow({ quote, updateQuotation }) {
         <div className="flex gap-2"><button className="rounded-lg bg-emerald-50 px-4 py-2 font-black text-emerald-700" onClick={() => updateQuotation(quote.id, 'Approved')} type="button">Approve</button><button className="rounded-lg bg-rose-50 px-4 py-2 font-black text-rose-700" onClick={() => updateQuotation(quote.id, 'Declined')} type="button">Decline</button></div>
       </div>
       <div className="mt-4 overflow-auto rounded-xl border border-slate-200">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[640px] text-left text-sm md:min-w-[720px]">
           <thead className="bg-slate-50 text-slate-500"><tr><th className="p-3">#</th><th className="p-3">Description</th><th className="p-3">Quantity</th><th className="p-3">Price</th><th className="p-3">Amount</th><th className="p-3">Amount + VAT 18%</th></tr></thead>
           <tbody>{(quote.items || []).map((item, index) => <tr key={`${quote.id}-${index}`} className="border-t border-slate-200"><td className="p-3">{index + 1}</td><td className="p-3">{item.description}</td><td className="p-3">{item.quantity}</td><td className="p-3">{money.format(item.price)}</td><td className="p-3">{money.format(item.amount)}</td><td className="p-3 font-black">{money.format(item.amountWithVat)}</td></tr>)}</tbody>
         </table>
