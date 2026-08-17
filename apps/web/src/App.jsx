@@ -427,6 +427,10 @@ function Storefront() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [detailProduct, setDetailProduct] = useState(null);
   const [notice, setNotice] = useState('');
+  const [customImageFile, setCustomImageFile] = useState(null);
+  const [customImagePreview, setCustomImagePreview] = useState('');
+  const [customUploadStatus, setCustomUploadStatus] = useState('');
+  const [customSubmitting, setCustomSubmitting] = useState(false);
   const [customer, setCustomer] = useState(() => currentCustomer());
 
   useEffect(() => {
@@ -599,28 +603,59 @@ function Storefront() {
     setCartOpen(false);
     showDone('Done');
   }
+  function handleCustomImageFile(event) {
+    const file = event.target.files?.[0] || null;
+    setCustomImageFile(file);
+    setCustomUploadStatus(file ? 'Image selected. It will be uploaded when you submit.' : '');
+    if (customImagePreview) URL.revokeObjectURL(customImagePreview);
+    setCustomImagePreview(file ? URL.createObjectURL(file) : '');
+  }
+
+  function clearCustomImage() {
+    setCustomImageFile(null);
+    setCustomUploadStatus('');
+    if (customImagePreview) URL.revokeObjectURL(customImagePreview);
+    setCustomImagePreview('');
+  }
+
   async function submitCustom(event) {
     event.preventDefault();
+    if (customSubmitting) return;
+    setCustomSubmitting(true);
+    setCustomUploadStatus('');
     const form = new FormData(event.currentTarget);
-    const requests = readStore('ophraCustomRequests', []);
-    const customRequest = {
-      id: `custom-${Date.now()}`,
-      createdAt: nowLabel(),
-      createdAtIso: nowIso(),
-      status: 'Pending',
-      name: String(form.get('name') || '').trim(),
-      description: String(form.get('description') || '').trim(),
-      quantity: Number(form.get('quantity') || 1),
-      location: String(form.get('location') || '').trim(),
-      email: String(form.get('email') || '').trim(),
-      phone: String(form.get('phone') || '').trim(),
-      image: normalizeImageUrl(form.get('image')),
-    };
-    requests.unshift(customRequest);
-    writeStore('ophraCustomRequests', requests);
-    await addRemoteRecord('customRequests', 'ophraCustomRequests', customRequest);
-    event.currentTarget.reset();
-    showDone('Done');
+    let imageUrl = normalizeImageUrl(form.get('image'));
+    try {
+      if (customImageFile) {
+        setCustomUploadStatus('Uploading image...');
+        imageUrl = await uploadImageToCloudinary(customImageFile);
+        setCustomUploadStatus('Image uploaded. Sending request...');
+      }
+      const requests = readStore('ophraCustomRequests', []);
+      const customRequest = {
+        id: `custom-${Date.now()}`,
+        createdAt: nowLabel(),
+        createdAtIso: nowIso(),
+        status: 'Pending',
+        name: String(form.get('name') || '').trim(),
+        description: String(form.get('description') || '').trim(),
+        quantity: Number(form.get('quantity') || 1),
+        location: String(form.get('location') || '').trim(),
+        email: String(form.get('email') || '').trim(),
+        phone: String(form.get('phone') || '').trim(),
+        image: imageUrl,
+      };
+      requests.unshift(customRequest);
+      writeStore('ophraCustomRequests', requests);
+      await addRemoteRecord('customRequests', 'ophraCustomRequests', customRequest);
+      event.currentTarget.reset();
+      clearCustomImage();
+      showDone('Done');
+    } catch (error) {
+      setCustomUploadStatus(error.message || 'Image upload failed. Please try again.');
+    } finally {
+      setCustomSubmitting(false);
+    }
   }
 
   return (
@@ -662,7 +697,23 @@ function Storefront() {
           </>
         )}
 
-        <section id="custom" className="mt-8 grid gap-6 border-t border-slate-200 py-10 lg:grid-cols-[0.8fr_1fr]"><div><h2 className="text-3xl font-black">Request a custom product</h2><p className="mt-3 max-w-xl text-slate-500">Send the product name, description, quantity, image link and contact details. Admin can accept or decline the request.</p></div><form className="grid gap-3 rounded-2xl bg-slate-50 p-4" onSubmit={submitCustom}><input className="rounded-xl bg-white px-4 py-3" name="name" required placeholder="Product name" /><textarea className="min-h-24 rounded-xl bg-white px-4 py-3" name="description" required placeholder="Description, size, brand, use case..." /><input className="rounded-xl bg-white px-4 py-3" name="image" placeholder="Image URL (optional)" /><div className="grid gap-3 md:grid-cols-2"><input className="rounded-xl bg-white px-4 py-3" name="quantity" type="number" min="1" defaultValue="1" /><input className="rounded-xl bg-white px-4 py-3" name="location" placeholder="Site location" /></div><div className="grid gap-3 md:grid-cols-2"><input className="rounded-xl bg-white px-4 py-3" name="email" type="email" placeholder="Email address" /><input className="rounded-xl bg-white px-4 py-3" name="phone" type="tel" placeholder="Phone number" /></div><button className="rounded-xl bg-brand-navy px-5 py-3 font-black text-white" type="submit">Submit custom order</button></form></section>
+        <section id="custom" className="mt-8 grid gap-6 border-t border-slate-200 py-10 lg:grid-cols-[0.8fr_1fr]">
+          <div><h2 className="text-3xl font-black">Request a custom product</h2><p className="mt-3 max-w-xl text-slate-500">Send the product name, description, quantity, optional image and contact details. Admin can accept or decline the request.</p></div>
+          <form className="grid gap-3 rounded-2xl bg-slate-50 p-4" onSubmit={submitCustom}>
+            <input className="rounded-xl bg-white px-4 py-3" name="name" required placeholder="Product name" />
+            <textarea className="min-h-24 rounded-xl bg-white px-4 py-3" name="description" required placeholder="Description, size, brand, use case..." />
+            <CustomOrderImageInput
+              preview={customImagePreview}
+              status={customUploadStatus}
+              onFileChange={handleCustomImageFile}
+              onClear={clearCustomImage}
+            />
+            <input className="rounded-xl bg-white px-4 py-3" name="image" placeholder="Image URL fallback (optional)" />
+            <div className="grid gap-3 md:grid-cols-2"><input className="rounded-xl bg-white px-4 py-3" name="quantity" type="number" min="1" defaultValue="1" /><input className="rounded-xl bg-white px-4 py-3" name="location" placeholder="Site location" /></div>
+            <div className="grid gap-3 md:grid-cols-2"><input className="rounded-xl bg-white px-4 py-3" name="email" type="email" placeholder="Email address" /><input className="rounded-xl bg-white px-4 py-3" name="phone" type="tel" placeholder="Phone number" /></div>
+            <button className="rounded-xl bg-brand-navy px-5 py-3 font-black text-white disabled:opacity-60" disabled={customSubmitting} type="submit">{customSubmitting ? 'Submitting...' : 'Submit custom order'}</button>
+          </form>
+        </section>
         <footer className="mt-10 grid gap-10 border-t border-slate-200 py-10 md:grid-cols-3"><div><h3 className="text-lg font-black">Features</h3><ul className="mt-5 grid gap-4 text-slate-600"><li>Pricing</li><li>Online payment</li><li>Transactions</li></ul></div><div><h3 className="text-lg font-black">Explore</h3><ul className="mt-5 grid gap-4 text-slate-600"><li>Home</li><li>Our Shop</li><li>Contact Us</li></ul></div><div className="flex items-center justify-center gap-5"><img className="h-28 w-44 shrink-0 object-contain" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><strong className="text-2xl leading-tight">{BRAND_NAME}</strong></div></footer>
       </main>
 
@@ -932,6 +983,21 @@ function QuantityModal({ product, close, confirm }) {
         </div>
         <button className="mt-5 h-12 w-full rounded-xl bg-brand-navy font-black text-white" onClick={() => confirm(product, quantity)} type="button">Add to Cart</button>
       </div>
+    </div>
+  );
+}
+
+
+function CustomOrderImageInput({ preview, status, onFileChange, onClear }) {
+  const ready = Boolean(CLOUDINARY_CLOUD_NAME && CLOUDINARY_UPLOAD_PRESET);
+  return (
+    <div className="grid gap-2 rounded-xl bg-white p-3">
+      <label className="grid gap-2 text-sm font-bold text-slate-600">
+        Product image from device (optional)
+        <input className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal" type="file" accept="image/*" onChange={onFileChange} disabled={!ready} />
+      </label>
+      {preview && <div className="grid gap-2 sm:grid-cols-[120px_1fr]"><div className="grid h-28 w-28 place-items-center rounded-lg bg-slate-50 p-2"><img className="max-h-full max-w-full object-contain" src={preview} alt="Custom order preview" /></div><button className="h-10 self-center justify-self-start rounded-lg bg-slate-100 px-4 text-sm font-black text-brand-navy" onClick={onClear} type="button">Remove image</button></div>}
+      <p className="text-xs text-slate-500">{ready ? status || 'The image uploads to Cloudinary when you submit. OPHRA saves only the URL.' : 'Image upload is not configured yet. You can paste an image URL below.'}</p>
     </div>
   );
 }
