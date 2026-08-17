@@ -665,7 +665,7 @@ function Storefront() {
         <div className="flex min-h-[78px] items-center justify-between gap-6 px-4 py-2 md:px-10">
           <a href="/" className="flex min-w-0 items-center gap-3 text-sm font-black md:text-xl"><img className="h-16 w-28 shrink-0 object-contain md:h-20 md:w-36" src="/ophra-logo.png" alt="OPHRA GENERAL SUPPLY logo" /><span className="max-w-[180px] leading-tight md:max-w-none">{BRAND_NAME}</span></a>
           <nav className="hidden items-center gap-9 text-lg lg:flex"><a href="/">Home</a><a className="font-black text-brand-navy" href="#shop">Shop</a><a href="/admin">Admin</a></nav>
-          <a className="inline-flex h-10 shrink-0 items-center rounded-lg bg-brand-navy px-4 text-sm font-black text-white md:px-8" href="/account">{customer ? 'ACCOUNT' : 'SIGN UP'}</a>
+          <a className="inline-flex h-10 shrink-0 items-center rounded-lg bg-brand-navy px-4 text-sm font-black text-white md:px-8" href="/account">LOGIN</a>
         </div>
       </header>
 
@@ -993,7 +993,7 @@ function CustomOrderImageInput({ preview, status, onFileChange, onClear }) {
   return (
     <div className="grid gap-2 rounded-xl bg-white p-3">
       <label className="grid gap-2 text-sm font-bold text-slate-600">
-        Product image from device (optional)
+        Upload image (optional)
         <input className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-normal" type="file" accept="image/*" onChange={onFileChange} disabled={!ready} />
       </label>
       {preview && <div className="grid gap-2 sm:grid-cols-[120px_1fr]"><div className="grid h-28 w-28 place-items-center rounded-lg bg-slate-50 p-2"><img className="max-h-full max-w-full object-contain" src={preview} alt="Custom order preview" /></div><button className="h-10 self-center justify-self-start rounded-lg bg-slate-100 px-4 text-sm font-black text-brand-navy" onClick={onClear} type="button">Remove image</button></div>}
