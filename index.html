@@ -1,0 +1,133 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OPHRA</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="top-shell">
+      <a class="brand" href="#top" aria-label="OPHRA home">
+        <img src="tmp/pdfs/ophra-logo.png" alt="OPHRA logo" />
+        <span>OPHRA</span>
+      </a>
+      <nav class="nav-pills" aria-label="Main navigation">
+        <a href="#catalog">Materials</a>
+<a href="#custom">Custom order</a>
+        <button id="cartTrigger" type="button" hidden>Cart <strong id="cartCount">0</strong></button>
+      </nav>
+    </header>
+
+    <main id="top" class="page-shell">
+      <section class="shop-frame">
+        <div class="toolbar">
+          <select id="categoryFilter" aria-label="Category filter">
+            <option value="All">All supplies</option>
+            <option value="Cement">Cement</option>
+            <option value="Steel">Steel</option>
+            <option value="Masonry">Masonry</option>
+            <option value="Aggregates">Aggregates</option>
+            <option value="Timber">Timber</option>
+          </select>
+          <button type="button">Bulk deals</button>
+          <button type="button">In stock</button>
+          <form id="searchForm" class="search-form">
+            <input id="searchInput" type="search" placeholder="Search materials" />
+            <button type="submit" aria-label="Search"><span aria-hidden="true">⌕</span></button>
+          </form>
+        </div>
+
+                <section class="product-detail hero-simple">
+          <div class="hero-message">
+            <p class="eyebrow">Construction supplies made simple</p>
+            <h1>Everything for your next build, checked before approval.</h1>
+            <p>Shop cement, steel, blocks, sand, timber, and custom materials with clear availability and simple checkout.</p>
+            <div class="hero-actions">
+              <a href="#catalog">Shop materials</a>
+              <a href="#catalog">Browse catalog</a>
+            </div>
+          </div>
+          <article class="image-card hero-image hero-main-image">
+            <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=85" alt="Construction site with building materials" />
+            <span>Ready for site delivery</span>
+          </article>
+        </section>
+      </section>
+      <section class="catalog-section" id="catalog">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">More all you need</p>
+            <h2>Popular construction supplies</h2>
+          </div>
+          <span id="resultCount">0 products</span>
+        </div>
+        <div id="productGrid" class="product-grid"></div>
+      </section>
+
+      <section class="checkout-strip" id="checkout">
+        <article><span>01</span><strong>Review cart</strong><p>Confirm product, quantity, and estimated total.</p></article>
+        <article><span>02</span><strong>Delivery site</strong><p>Add location and site contact details.</p></article>
+        <article><span>03</span><strong>Payment</strong><p>Choose mobile money, transfer, card, or deposit.</p></article>
+        <article><span>04</span><strong>Approval</strong><p>The team reviews the order before final acceptance.</p></article>
+      </section>
+
+      <section class="custom-section" id="custom">
+        <div>
+          <p class="eyebrow">Custom sourcing</p>
+          <h2>Request a material not in the catalog</h2>
+          <p>Send a product name, description, image link, quantity, location, and notes. The request appears instantly for admin review.</p>
+        </div>
+        <form id="customForm" class="custom-form">
+          <input id="customName" required placeholder="Product name" />
+          <textarea id="customDescription" required placeholder="Description, grade, size, use case..."></textarea>
+          <div class="two-fields">
+            <input id="customQuantity" type="number" min="1" value="1" />
+            <input id="customLocation" placeholder="Site location" />
+          </div>
+          <div class="two-fields">`r`n            <input id="customEmail" type="email" placeholder="Email address" />`r`n            <input id="customPhone" type="tel" placeholder="Phone number" />`r`n          </div>`r`n          <input id="customImage" type="url" placeholder="Image URL or reference link" />
+          <button type="submit">Submit request</button>
+        </form>
+      </section>
+
+      <section class="requests-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Admin queue</p>
+            <h2>Custom requests</h2>
+          </div>
+          <span id="requestCount">0 requests</span>
+        </div>
+        <div id="requestList" class="request-list"></div>
+      </section>
+    </main>
+
+    <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping cart">
+      <div class="cart-head">
+        <div>
+          <p class="eyebrow">Cart</p>
+          <h2>Order summary</h2>
+        </div>
+        <button id="closeCart" type="button">Close</button>
+      </div>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="cart-note"><strong>Approval required</strong><span>Your order is reviewed before final confirmation.</span></div>
+      <div class="total-line"><span>Total</span><strong id="cartTotal">KES 0</strong></div>
+      <button id="completeCheckout" class="checkout-button" type="button">Complete sale</button>
+    </aside>
+    <div class="overlay" id="overlay"></div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

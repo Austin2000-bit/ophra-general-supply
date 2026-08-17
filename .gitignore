@@ -1,0 +1,13 @@
+﻿node_modules
+apps/web/node_modules
+apps/web/dist
+apps/api/local-store.json
+data
+.env
+.env.*
+!.env.example
+dev-*.log
+
+output
+
+tmp

@@ -1,0 +1,22 @@
+{
+  "name": "ophra-share-dc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/web",
+    "apps/api",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev:api",
+    "dev:web": "npm --workspace apps/web run dev",
+    "dev:api": "node apps/api/server.mjs",
+    "build": "npm run build:web",
+    "build:web": "npm --workspace apps/web run build",
+    "start": "node apps/api/server.mjs",
+    "start:api": "node apps/api/server.mjs",
+    "start:full": "npm run build:web && node scripts/start-full.mjs",
+    "hash:admin": "node scripts/hash-admin-password.mjs"
+  }
+}
